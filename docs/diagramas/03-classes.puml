@@ -1,0 +1,92 @@
+@startuml classes
+!include 00-estilo.iuml
+skinparam classAttributeIconSize 0
+title ComandaFácil — Diagrama de Classes (Entidades)
+
+enum PerfilUsuario {
+  Atendente
+  Administrador
+}
+enum StatusMesa {
+  Livre
+  Ocupada
+  AguardandoPagamento
+}
+enum StatusComanda {
+  Aberta
+  Fechada
+}
+enum FormaPagamento {
+  Dinheiro
+  Pix
+  CartaoDebito
+  CartaoCredito
+}
+
+class Usuario {
+  + Id : int
+  + Nome : string
+  + Login : string
+  + SenhaHash : string
+  + Perfil : PerfilUsuario
+  + Ativo : bool
+}
+
+class Mesa {
+  + Id : int
+  + Numero : int
+  + Status : StatusMesa
+  + Ocupar() : void
+  + SolicitarConta() : void
+  + Liberar() : void
+}
+
+class Categoria {
+  + Id : int
+  + Nome : string
+}
+
+class Produto {
+  + Id : int
+  + Nome : string
+  + Preco : decimal
+  + Ativo : bool
+  + CategoriaId : int
+}
+
+class Comanda {
+  + Id : int
+  + MesaId : int
+  + UsuarioId : int
+  + DataAbertura : DateTime
+  + DataFechamento : DateTime?
+  + Status : StatusComanda
+  + FormaPagamento : FormaPagamento?
+  + Total : decimal
+  + AdicionarItem(produto : Produto, quantidade : int, observacao : string) : ItemComanda
+  + RemoverItem(itemId : int) : ItemComanda
+  + CalcularTotal() : decimal
+  + Fechar(forma : FormaPagamento) : void
+}
+
+class ItemComanda {
+  + Id : int
+  + ComandaId : int
+  + ProdutoId : int
+  + Quantidade : int
+  + PrecoUnitario : decimal
+  + Observacao : string
+  + /Subtotal : decimal
+}
+
+Categoria "1" -- "0..*" Produto : classifica >
+Mesa "1" -- "0..*" Comanda : recebe >
+Usuario "1" -- "0..*" Comanda : abre >
+Comanda "1" *-- "0..*" ItemComanda : contém >
+Produto "1" -- "0..*" ItemComanda : < referencia
+
+Usuario ..> PerfilUsuario
+Mesa ..> StatusMesa
+Comanda ..> StatusComanda
+Comanda ..> FormaPagamento
+@enduml

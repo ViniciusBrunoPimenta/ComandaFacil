@@ -1,0 +1,111 @@
+@model VendasDoDiaViewModel
+@{
+    ViewData["Title"] = "Vendas do dia";
+    var maiorQuantidade = Model.MaisVendidos.Count == 0 ? 1 : Model.MaisVendidos.Max(p => p.Quantidade);
+    var ehHoje = Model.Data == DateTime.Today;
+}
+
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-3">
+    <div>
+        <h1 class="titulo">Vendas do dia</h1>
+        <p class="text-secondary m-0">@(ehHoje ? "Hoje, " : "")@Model.Data.ToString("dddd, dd 'de' MMMM 'de' yyyy")</p>
+    </div>
+    <form method="get" asp-action="VendasDoDia" class="d-flex gap-2 align-items-end">
+        <div>
+            <label for="data" class="form-label">Data</label>
+            <input id="data" name="data" type="date" class="form-control" value="@Model.Data.ToString("yyyy-MM-dd")" />
+        </div>
+        <button type="submit" class="btn btn-primary">Ver</button>
+    </form>
+</div>
+
+@if (Model.QuantidadeComandas == 0)
+{
+    <div class="bloco text-center py-5">
+        <p class="m-0">Nenhuma comanda foi fechada nesta data.</p>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="bloco h-100">
+                <p class="m-0 text-secondary">Total vendido</p>
+                <p class="numero-grande m-0">@Model.TotalVendido.ToString("C")</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="bloco h-100">
+                <p class="m-0 text-secondary">Comandas</p>
+                <p class="numero-medio m-0">@Model.QuantidadeComandas</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="bloco h-100">
+                <p class="m-0 text-secondary">Ticket médio</p>
+                <p class="numero-medio m-0">@Model.TicketMedio.ToString("C")</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <section class="col-lg-7">
+            <div class="bloco h-100">
+                <h2 class="subtitulo">Mais vendidos</h2>
+                <ol class="ranking">
+                    @foreach (var p in Model.MaisVendidos)
+                    {
+                        var largura = (int)Math.Round(100.0 * p.Quantidade / maiorQuantidade);
+                        <li>
+                            <div class="d-flex justify-content-between gap-2">
+                                <span class="fw-bold">@p.Produto</span>
+                                <span class="text-nowrap">@p.Quantidade un. (@p.Valor.ToString("C"))</span>
+                            </div>
+                            <div class="barra-produto" style="width:@largura%"></div>
+                        </li>
+                    }
+                </ol>
+            </div>
+        </section>
+
+        <section class="col-lg-5">
+            <div class="bloco mb-3">
+                <h2 class="subtitulo">Por forma de pagamento</h2>
+                <table class="table align-middle m-0">
+                    <tbody>
+                        @foreach (var v in Model.PorFormaPagamento)
+                        {
+                            <tr>
+                                <td>@v.Forma.Nome()</td>
+                                <td>@v.Quantidade</td>
+                                <td class="text-end fw-bold">@v.Valor.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bloco">
+                <h2 class="subtitulo">Comandas fechadas</h2>
+                <div class="table-responsive">
+                    <table class="table align-middle m-0">
+                        <thead>
+                            <tr><th>Hora</th><th>Mesa</th><th>Pagamento</th><th class="text-end">Total</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model.Comandas)
+                            {
+                                <tr>
+                                    <td>@c.DataFechamento?.ToString("HH:mm")</td>
+                                    <td>@c.Mesa?.Numero</td>
+                                    <td>@c.FormaPagamento?.Nome()</td>
+                                    <td class="text-end">@c.Total.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+}

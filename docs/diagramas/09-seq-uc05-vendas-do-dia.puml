@@ -1,0 +1,25 @@
+@startuml seq-uc05
+!include 00-estilo.iuml
+autonumber
+title UC05 — Consultar vendas do dia
+
+actor Administrador as AD
+boundary "Tela de Relatório\n(Razor View)" as V
+control "RelatoriosController" as C
+participant "AppDbContext\n(EF Core)" as DB
+database "Banco de Dados" as BD
+
+AD -> V : Acessa "Vendas do dia" (data padrão: hoje)
+V -> C : GET /Relatorios/VendasDoDia(data)
+C -> DB : Comandas fechadas na data\n.Include(Itens).ThenInclude(Produto)
+DB -> BD : SELECT ... WHERE Status = 'Fechada'\nAND DataFechamento na data
+BD --> DB : comandas + itens
+DB --> C : lista de comandas
+C -> C : soma o total, conta as comandas,\nagrupa itens por produto e ordena\npela quantidade vendida
+alt existem vendas na data
+  C --> V : total, nº de comandas, ticket médio\ne ranking de produtos
+else nenhuma venda
+  C --> V : mensagem "Nenhuma venda nesta data"
+end
+V --> AD : Exibe o relatório
+@enduml

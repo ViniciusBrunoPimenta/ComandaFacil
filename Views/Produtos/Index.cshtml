@@ -1,0 +1,53 @@
+@model List<Produto>
+@{
+    ViewData["Title"] = "Produtos";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="titulo">Produtos</h1>
+    <a class="btn btn-primary" asp-action="Criar">Novo produto</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="bloco text-center py-5">
+        <p class="mb-3">O cardápio está vazio. Cadastre o primeiro produto.</p>
+        <a class="btn btn-primary" asp-action="Criar">Cadastrar produto</a>
+    </div>
+}
+else
+{
+    <div class="bloco p-0 table-responsive">
+        <table class="table align-middle m-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Produto</th>
+                    <th>Categoria</th>
+                    <th class="text-end">Preço</th>
+                    <th>Situação</th>
+                    <th class="text-end pe-3">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var produto in Model)
+                {
+                    <tr class="@(produto.Ativo ? "" : "inativo")">
+                        <td class="ps-3 fw-bold">@produto.Nome</td>
+                        <td>@produto.Categoria?.Nome</td>
+                        <td class="text-end text-nowrap">@produto.Preco.ToString("C")</td>
+                        <td>@(produto.Ativo ? "Disponível" : "Indisponível")</td>
+                        <td class="pe-3">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a class="btn btn-outline-secondary" asp-action="Editar" asp-route-id="@produto.Id">Editar</a>
+                                <form asp-action="Excluir" asp-route-id="@produto.Id" method="post" class="m-0"
+                                      data-confirmar="Excluir @produto.Nome?">
+                                    <button type="submit" class="btn btn-outline-danger">Excluir</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

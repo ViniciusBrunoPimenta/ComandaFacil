@@ -1,0 +1,31 @@
+@startuml seq-uc02
+!include 00-estilo.iuml
+autonumber
+title UC02 — Abrir comanda em uma mesa
+
+actor Atendente as AT
+boundary "Painel de Mesas\n(Razor View)" as V
+control "ComandasController" as C
+participant "AppDbContext\n(EF Core)" as DB
+database "Banco de Dados" as BD
+
+AT -> V : Toca na mesa livre (verde) e confirma
+V -> C : POST /Comandas/Abrir(mesaId)
+C -> DB : Mesas.Find(mesaId)
+DB -> BD : SELECT
+BD --> DB : mesa
+C -> DB : existe comanda "Aberta" para a mesa?
+DB -> BD : SELECT
+alt já existe comanda aberta
+  C --> V : redireciona para a comanda existente
+else mesa livre
+  C -> C : new Comanda(mesaId, usuarioId,\nDataAbertura = agora, Status = Aberta)
+  C -> DB : Comandas.Add(comanda)
+  C -> DB : mesa.Status = Ocupada
+  C -> DB : SaveChanges()
+  DB -> BD : INSERT Comanda / UPDATE Mesa
+  BD --> DB : ok
+  C --> V : redireciona para a tela da comanda
+end
+V --> AT : Mesa fica vermelha (Ocupada)
+@enduml

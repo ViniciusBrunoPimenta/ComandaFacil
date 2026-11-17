@@ -1,0 +1,32 @@
+@startuml seq-uc04
+!include 00-estilo.iuml
+autonumber
+title UC04 — Fechar comanda
+
+actor Atendente as AT
+boundary "Tela de Fechamento\n(Razor View)" as V
+control "ComandasController" as C
+participant "AppDbContext\n(EF Core)" as DB
+database "Banco de Dados" as BD
+
+AT -> V : Toca em "Fechar conta"
+V -> C : POST /Comandas/PedirConta(comandaId)
+C -> DB : Comandas.Include(Mesa, Itens).First(comandaId)
+DB -> BD : SELECT
+BD --> DB : comanda + itens
+C -> C : mesa.SolicitarConta()\nCalcularTotal()
+C -> DB : SaveChanges()
+DB -> BD : UPDATE Mesa
+C --> V : redireciona para GET /Comandas/Fechar\n(exibe resumo e total)
+V --> AT : Mesa fica amarela
+
+AT -> V : Seleciona forma de pagamento e confirma
+V -> C : POST /Comandas/Fechar(comandaId, formaPagamento)
+C -> C : comanda.Fechar(formaPagamento)\nStatus = Fechada, DataFechamento = agora, Total
+C -> DB : mesa.Status = Livre
+C -> DB : SaveChanges()
+DB -> BD : UPDATE Comanda / UPDATE Mesa
+BD --> DB : ok
+C --> V : redireciona para o painel de mesas
+V --> AT : Mesa volta a ficar verde (Livre)
+@enduml

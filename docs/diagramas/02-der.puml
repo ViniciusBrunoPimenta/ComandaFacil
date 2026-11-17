@@ -1,0 +1,73 @@
+@startuml der
+!include 00-estilo.iuml
+hide circle
+skinparam linetype ortho
+title ComandaFácil — Diagrama Entidade-Relacionamento (DER)
+
+entity "Usuario" as usuario {
+  * Id : INTEGER <<PK>>
+  --
+  * Nome : VARCHAR(100)
+  * Login : VARCHAR(50) <<UNIQUE>>
+  * SenhaHash : VARCHAR(255)
+  * Perfil : VARCHAR(20)
+  * Ativo : BOOLEAN
+}
+
+entity "Mesa" as mesa {
+  * Id : INTEGER <<PK>>
+  --
+  * Numero : INTEGER <<UNIQUE>>
+  * Status : VARCHAR(30)
+}
+
+entity "Categoria" as categoria {
+  * Id : INTEGER <<PK>>
+  --
+  * Nome : VARCHAR(60) <<UNIQUE>>
+}
+
+entity "Produto" as produto {
+  * Id : INTEGER <<PK>>
+  --
+  * Nome : VARCHAR(100)
+  * Preco : DECIMAL(10,2)
+  * Ativo : BOOLEAN
+  * CategoriaId : INTEGER <<FK>>
+}
+
+entity "Comanda" as comanda {
+  * Id : INTEGER <<PK>>
+  --
+  * MesaId : INTEGER <<FK>>
+  * UsuarioId : INTEGER <<FK>>
+  * DataAbertura : DATETIME
+  DataFechamento : DATETIME
+  * Status : VARCHAR(20)
+  FormaPagamento : VARCHAR(20)
+  * Total : DECIMAL(10,2)
+}
+
+entity "ItemComanda" as item {
+  * Id : INTEGER <<PK>>
+  --
+  * ComandaId : INTEGER <<FK>>
+  * ProdutoId : INTEGER <<FK>>
+  * Quantidade : INTEGER
+  * PrecoUnitario : DECIMAL(10,2)
+  Observacao : VARCHAR(200)
+}
+
+categoria ||--o{ produto : classifica
+mesa ||--o{ comanda : recebe
+usuario ||--o{ comanda : abre
+comanda ||--o{ item : contém
+produto ||--o{ item : é pedido em
+
+note right of item
+  PrecoUnitario é copiado do Produto
+  no momento do pedido, para que o
+  histórico não mude quando o preço
+  do produto for alterado.
+end note
+@enduml

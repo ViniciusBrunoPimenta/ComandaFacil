@@ -1,0 +1,45 @@
+@startuml seq-uc01
+!include 00-estilo.iuml
+autonumber
+title UC01 — Gerenciar produtos e categorias
+
+actor Administrador as AD
+boundary "Tela de Produtos\n(Razor View)" as V
+control "ProdutosController" as C
+participant "AppDbContext\n(EF Core)" as DB
+database "Banco de Dados" as BD
+
+AD -> V : Acessa "Produtos"
+V -> C : GET /Produtos
+C -> DB : Produtos.Include(Categoria).ToList()
+DB -> BD : SELECT
+BD --> DB : registros
+DB --> C : lista de produtos
+C --> V : exibe lista
+
+alt Cadastrar / Editar
+  AD -> V : Preenche nome, preço e categoria e salva
+  V -> C : POST /Produtos/Criar ou /Produtos/Editar(produto)
+  alt dados válidos
+    C -> DB : Add(produto) ou Update(produto)
+    C -> DB : SaveChanges()
+    DB -> BD : INSERT / UPDATE
+    C --> V : mensagem "Produto salvo"
+  else dados inválidos
+    C --> V : exibe erros de validação
+  end
+else Excluir
+  AD -> V : Clica em "Excluir" e confirma
+  V -> C : POST /Produtos/Excluir(id)
+  C -> DB : produto possui itens em comandas?
+  alt não possui
+    C -> DB : Remove(produto); SaveChanges()
+    DB -> BD : DELETE
+  else possui histórico
+    C -> DB : produto.Ativo = false; SaveChanges()
+    DB -> BD : UPDATE
+  end
+  C --> V : lista atualizada
+end
+note over AD, BD : O CRUD de Categoria segue o mesmo fluxo.
+@enduml

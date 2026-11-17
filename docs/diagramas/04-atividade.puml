@@ -1,0 +1,41 @@
+@startuml atividade
+!include 00-estilo.iuml
+title ComandaFácil — Diagrama de Atividade do Atendimento
+
+|Cliente|
+start
+:Senta em uma mesa;
+|Atendente|
+:Seleciona a mesa no painel;
+|Sistema|
+if (Mesa está livre?) then (sim)
+  :Abre a comanda;
+  :Muda a mesa para "Ocupada";
+else (não)
+  :Exibe a comanda já aberta;
+endif
+repeat
+  |Cliente|
+  :Faz o pedido;
+  |Atendente|
+  :Lança itens (quantidade e observação);
+  |Sistema|
+  :Grava o item com o preço atual;
+  :Recalcula o total;
+  |Cliente|
+repeat while (Deseja pedir mais?) is (sim) not (não)
+:Pede a conta;
+|Atendente|
+:Solicita o fechamento da comanda;
+|Sistema|
+:Muda a mesa para "Aguardando pagamento";
+:Exibe o total da comanda;
+|Cliente|
+:Efetua o pagamento;
+|Atendente|
+:Informa a forma de pagamento;
+|Sistema|
+:Fecha a comanda e registra o pagamento;
+:Muda a mesa para "Livre";
+stop
+@enduml

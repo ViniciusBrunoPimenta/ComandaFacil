@@ -1,0 +1,198 @@
+/* ComandaFácil — tokens visuais */
+:root {
+    --tinta: #1D2B36;
+    --fundo: #EEF1F4;
+    --superficie: #FFFFFF;
+    --linha: #D5DCE3;
+    --suave: #5B6B78;
+
+    /* Cores de status das mesas */
+    --livre: #1F7A4A;
+    --ocupada: #B8392A;
+    --aguardando: #E3A41C;
+
+    /* Ações */
+    --acao: #1F5F99;
+    --acao-escura: #174A78;
+
+    --bs-body-font-family: "Atkinson Hyperlegible", "Segoe UI", Roboto, Arial, sans-serif;
+    --bs-body-font-size: 1.125rem;
+    --bs-body-color: var(--tinta);
+    --bs-body-bg: var(--fundo);
+}
+
+/* RNF02: alvos de toque com no mínimo 48px */
+.btn {
+    min-height: 48px;
+    padding-inline: 1.1rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-lg { min-height: 60px; font-size: 1.25rem; }
+
+.btn-primary {
+    --bs-btn-bg: var(--acao);
+    --bs-btn-border-color: var(--acao);
+    --bs-btn-hover-bg: var(--acao-escura);
+    --bs-btn-hover-border-color: var(--acao-escura);
+    --bs-btn-active-bg: var(--acao-escura);
+    --bs-btn-active-border-color: var(--acao-escura);
+    --bs-btn-disabled-bg: var(--acao);
+    --bs-btn-disabled-border-color: var(--acao);
+}
+
+.form-control,
+.form-select { min-height: 48px; font-size: 1.1rem; }
+
+.form-label { font-weight: 700; margin-bottom: .35rem; }
+
+.form-switch .form-check-input { width: 3.25em; height: 1.75em; margin-right: .6rem; }
+.form-switch .form-check-label { padding-top: .2rem; }
+
+:focus-visible { outline: 3px solid var(--acao); outline-offset: 2px; }
+
+/* Barra superior */
+.barra { background: var(--tinta); }
+.marca { font-weight: 700; font-size: 1.4rem; letter-spacing: -0.01em; }
+.barra .nav-link { min-height: 48px; display: flex; align-items: center; font-size: 1.1rem; }
+
+/* Títulos e blocos */
+.titulo { font-size: clamp(1.75rem, 4vw, 2.25rem); font-weight: 700; line-height: 1.15; margin: 0; }
+.subtitulo { font-size: 1.3rem; font-weight: 700; margin: 0 0 .75rem; }
+
+.bloco {
+    background: var(--superficie);
+    border: 1px solid var(--linha);
+    border-radius: 14px;
+    padding: 1.25rem;
+}
+
+.aviso { font-size: 1.05rem; }
+
+/* Login */
+.login { max-width: 420px; margin: 8vh auto 0; }
+.login-marca { font-size: 2.5rem; font-weight: 700; margin: 0; }
+.dica { color: var(--suave); font-size: 1rem; }
+
+.formulario { max-width: 640px; }
+
+/* Painel de mesas */
+.legenda { list-style: none; display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin: 0; padding: 0; font-size: 1rem; }
+.ponto { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: .4rem; vertical-align: -1px; }
+.ponto-livre { background: var(--livre); }
+.ponto-ocupada { background: var(--ocupada); }
+.ponto-aguardando { background: var(--aguardando); }
+
+.painel-mesas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+}
+
+.painel-mesas form { margin: 0; display: flex; }
+
+/* A mesa é um "bloco de toque" com borda inferior grossa: afunda quando tocada */
+.mesa {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .75rem;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 150px;
+    padding: 14px 16px 18px;
+    border: 0;
+    border-radius: 14px;
+    text-align: left;
+    text-decoration: none;
+    box-shadow: inset 0 -7px 0 rgba(0, 0, 0, .2);
+    transition: transform .08s ease, box-shadow .08s ease;
+}
+
+.mesa:active { transform: translateY(4px); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .2); }
+.mesa:focus-visible { outline: 4px solid var(--tinta); outline-offset: 3px; }
+
+.mesa-numero { font-size: 3.25rem; font-weight: 700; line-height: 1; }
+.mesa-status { display: block; font-weight: 700; font-size: 1.15rem; }
+.mesa-info { display: block; font-size: .95rem; opacity: .92; }
+
+.mesa-livre, .mesa-livre:hover { background: var(--livre); color: #fff; }
+.mesa-ocupada, .mesa-ocupada:hover { background: var(--ocupada); color: #fff; }
+.mesa-aguardando, .mesa-aguardando:hover { background: var(--aguardando); color: var(--tinta); }
+.mesa:hover { filter: brightness(1.06); }
+
+/* Comanda */
+.lista-itens { list-style: none; margin: 0; padding: 0; }
+
+.item-linha {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem 0;
+    border-bottom: 1px solid var(--linha);
+}
+
+.item-qtd { font-weight: 700; min-width: 2.5rem; }
+.item-nome { flex: 1; }
+.item-obs { display: block; color: var(--suave); font-size: .95rem; }
+.item-valor { font-weight: 700; white-space: nowrap; }
+.btn-remover { padding-inline: .75rem; font-size: .95rem; }
+
+.total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 1rem; font-size: 1.15rem; }
+.total-valor { font-size: 2rem; font-weight: 700; }
+
+.contador .btn { min-width: 52px; font-size: 1.5rem; }
+.contador .form-control { font-weight: 700; font-size: 1.25rem; }
+
+.categoria { font-size: 1.1rem; font-weight: 700; color: var(--suave); margin: 1.25rem 0 .5rem; }
+
+.grade-produtos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.produto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .25rem;
+    min-height: 76px;
+    padding: .7rem .85rem;
+    background: var(--superficie);
+    color: var(--tinta);
+    border: 2px solid var(--linha);
+    border-radius: 12px;
+    text-align: left;
+    font-size: 1.05rem;
+    line-height: 1.25;
+}
+
+.produto:hover { border-color: var(--acao); }
+.produto:active { background: #E4EEF8; border-color: var(--acao-escura); }
+.produto-preco { font-weight: 700; color: var(--acao-escura); }
+
+/* Fechamento */
+.fechamento { max-width: 640px; }
+.formas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.forma { min-height: 76px; font-size: 1.2rem; }
+
+/* Relatório */
+.numero-grande { font-size: clamp(2.25rem, 6vw, 3.25rem); font-weight: 700; line-height: 1.1; }
+.numero-medio { font-size: 1.75rem; font-weight: 700; line-height: 1.2; }
+
+.ranking { margin: 0; padding-left: 1.4rem; }
+.ranking li { padding: .45rem 0; }
+.barra-produto { height: 10px; margin-top: .35rem; background: var(--acao); border-radius: 5px; min-width: 6px; }
+
+.table { --bs-table-bg: transparent; }
+tr.inativo td { color: var(--suave); }
+
+@media (prefers-reduced-motion: reduce) {
+    .mesa { transition: none; }
+}

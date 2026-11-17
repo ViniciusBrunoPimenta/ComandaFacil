@@ -1,0 +1,49 @@
+@model List<Categoria>
+@{
+    ViewData["Title"] = "Categorias";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="titulo">Categorias</h1>
+    <a class="btn btn-primary" asp-action="Criar">Nova categoria</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="bloco text-center py-5">
+        <p class="mb-3">Nenhuma categoria cadastrada. Comece por Lanches, Bebidas ou Porções.</p>
+        <a class="btn btn-primary" asp-action="Criar">Cadastrar categoria</a>
+    </div>
+}
+else
+{
+    <div class="bloco p-0 table-responsive">
+        <table class="table align-middle m-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Nome</th>
+                    <th>Produtos</th>
+                    <th class="text-end pe-3">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var categoria in Model)
+                {
+                    <tr>
+                        <td class="ps-3 fw-bold">@categoria.Nome</td>
+                        <td>@categoria.Produtos.Count</td>
+                        <td class="pe-3">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a class="btn btn-outline-secondary" asp-action="Editar" asp-route-id="@categoria.Id">Editar</a>
+                                <form asp-action="Excluir" asp-route-id="@categoria.Id" method="post" class="m-0"
+                                      data-confirmar="Excluir a categoria @categoria.Nome?">
+                                    <button type="submit" class="btn btn-outline-danger">Excluir</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

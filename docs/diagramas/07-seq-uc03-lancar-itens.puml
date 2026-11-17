@@ -1,0 +1,36 @@
+@startuml seq-uc03
+!include 00-estilo.iuml
+autonumber
+title UC03 — Lançar/remover itens na comanda
+
+actor Atendente as AT
+boundary "Tela da Comanda\n(Razor View)" as V
+control "ComandasController" as C
+participant "AppDbContext\n(EF Core)" as DB
+database "Banco de Dados" as BD
+
+alt Lançar item
+  AT -> V : Informa quantidade e observação\n("sem cebola") e toca no produto
+  V -> C : POST /Comandas/AdicionarItem(id, produtoId, quantidade, observacao)
+  C -> DB : Comandas.Include(Mesa, Itens).First(id)\nProdutos.Find(produtoId)
+  DB -> BD : SELECT
+  BD --> DB : comanda + itens, produto
+  C -> C : comanda.AdicionarItem(produto, quantidade, observacao)\nvalida e cria ItemComanda com PrecoUnitario = produto.Preco\nrecalcula o Total
+  opt mesa estava "Aguardando pagamento"
+    C -> C : mesa.Status = Ocupada
+  end
+  C -> DB : SaveChanges()
+  DB -> BD : INSERT ItemComanda / UPDATE Comanda
+else Remover item
+  AT -> V : Toca em "Remover" no item e confirma
+  V -> C : POST /Comandas/RemoverItem(id, itemId)
+  C -> DB : Comandas.Include(Mesa, Itens).First(id)
+  DB -> BD : SELECT
+  BD --> DB : comanda + itens
+  C -> C : comanda.RemoverItem(itemId)\nrecalcula o Total
+  C -> DB : ItensComanda.Remove(item); SaveChanges()
+  DB -> BD : DELETE ItemComanda / UPDATE Comanda
+end
+C --> V : redireciona para /Comandas/Detalhes(id)
+V --> AT : Exibe itens e total atualizados
+@enduml

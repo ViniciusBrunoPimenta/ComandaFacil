@@ -1,0 +1,44 @@
+@model Comanda
+@{
+    ViewData["Title"] = $"Fechar mesa {Model.Mesa!.Numero}";
+}
+
+<div class="fechamento">
+    <h1 class="titulo mb-3">Fechar conta da mesa @Model.Mesa.Numero</h1>
+
+    <div class="bloco mb-3">
+        <ul class="lista-itens">
+            @foreach (var item in Model.Itens.OrderBy(i => i.Id))
+            {
+                <li class="item-linha">
+                    <span class="item-qtd">@(item.Quantidade)x</span>
+                    <span class="item-nome">
+                        @item.Produto?.Nome
+                        <span class="item-obs">@item.PrecoUnitario.ToString("C") cada</span>
+                    </span>
+                    <span class="item-valor">@item.Subtotal.ToString("C")</span>
+                </li>
+            }
+        </ul>
+        <div class="total">
+            <span>Total a pagar</span>
+            <span class="total-valor">@Model.Total.ToString("C")</span>
+        </div>
+    </div>
+
+    <div class="bloco">
+        <h2 class="subtitulo">Como o cliente vai pagar?</h2>
+        <form asp-action="Fechar" asp-route-id="@Model.Id" method="post">
+            <div class="formas">
+                @foreach (var forma in Enum.GetValues<FormaPagamento>())
+                {
+                    <button type="submit" name="formaPagamento" value="@forma" class="btn btn-primary forma"
+                            data-confirmar="Confirmar pagamento de @Model.Total.ToString("C") em @forma.Nome()?">
+                        @forma.Nome()
+                    </button>
+                }
+            </div>
+        </form>
+        <a class="btn btn-outline-secondary w-100 mt-3" asp-action="Detalhes" asp-route-id="@Model.Id">Voltar para a comanda</a>
+    </div>
+</div>

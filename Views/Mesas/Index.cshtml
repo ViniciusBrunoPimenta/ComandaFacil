@@ -1,0 +1,49 @@
+@model List<PainelMesaViewModel>
+@{
+    ViewData["Title"] = "Mesas";
+    var livres = Model.Count(m => m.Status == StatusMesa.Livre);
+    var ocupadas = Model.Count(m => m.Status == StatusMesa.Ocupada);
+    var aguardando = Model.Count(m => m.Status == StatusMesa.AguardandoPagamento);
+}
+
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-3">
+    <h1 class="titulo">Mesas</h1>
+    <ul class="legenda">
+        <li><span class="ponto ponto-livre"></span>@livres livres</li>
+        <li><span class="ponto ponto-ocupada"></span>@ocupadas ocupadas</li>
+        <li><span class="ponto ponto-aguardando"></span>@aguardando aguardando pagamento</li>
+    </ul>
+</div>
+
+<div class="painel-mesas">
+    @foreach (var mesa in Model)
+    {
+        if (mesa.Status == StatusMesa.Livre || mesa.ComandaId == null)
+        {
+            @* Confirma antes de abrir: evita abrir a mesa sem querer logo depois de fechar a conta *@
+            <form asp-controller="Comandas" asp-action="Abrir" method="post"
+                  data-confirmar="Abrir comanda na mesa @mesa.Numero?">
+                <input type="hidden" name="mesaId" value="@mesa.MesaId" />
+                <button type="submit" class="mesa mesa-livre">
+                    <span class="mesa-numero">@mesa.Numero</span>
+                    <span>
+                        <span class="mesa-status">Livre</span>
+                        <span class="mesa-info">Toque para abrir</span>
+                    </span>
+                </button>
+            </form>
+        }
+        else
+        {
+            var classe = mesa.Status == StatusMesa.Ocupada ? "mesa-ocupada" : "mesa-aguardando";
+            <a class="mesa @classe" asp-controller="Comandas" asp-action="Detalhes" asp-route-id="@mesa.ComandaId">
+                <span class="mesa-numero">@mesa.Numero</span>
+                <span>
+                    <span class="mesa-status">@mesa.Status.Nome()</span>
+                    <span class="mesa-info">@mesa.Total?.ToString("C")</span>
+                    <span class="mesa-info">desde @mesa.AbertaEm?.ToString("HH:mm")</span>
+                </span>
+            </a>
+        }
+    }
+</div>

@@ -1,0 +1,158 @@
+@model ComandaDetalhesViewModel
+@{
+    var c = Model.Comanda;
+    var aberta = c.Status == StatusComanda.Aberta;
+    var aguardando = c.Mesa!.Status == StatusMesa.AguardandoPagamento;
+    ViewData["Title"] = $"Mesa {c.Mesa.Numero}";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="titulo">Mesa @c.Mesa.Numero</h1>
+        <p class="text-secondary m-0">
+            Comanda aberta às @c.DataAbertura.ToString("HH:mm") por @c.Usuario?.Nome
+        </p>
+    </div>
+    <a class="btn btn-outline-secondary" asp-controller="Mesas" asp-action="Index">Voltar às mesas</a>
+</div>
+
+@if (!aberta)
+{
+    <div class="alert alert-secondary aviso">
+        Comanda fechada às @c.DataFechamento?.ToString("HH:mm") em @c.FormaPagamento?.Nome().
+    </div>
+}
+else if (aguardando)
+{
+    <div class="alert alert-warning aviso">A conta já foi pedida. Se o cliente pedir mais alguma coisa, é só lançar.</div>
+}
+
+<div class="row g-3 g-lg-4">
+    <section class="col-lg-5 order-2 order-lg-1">
+        <div class="bloco">
+            <h2 class="subtitulo">Pedidos</h2>
+
+            @if (c.Itens.Count == 0)
+            {
+                <p class="text-secondary my-3">Nenhum item ainda. Escolha os produtos no cardápio.</p>
+                @if (aberta)
+                {
+                    <form asp-action="Cancelar" asp-route-id="@c.Id" method="post"
+                          data-confirmar="Liberar a mesa @c.Mesa.Numero sem lançar nada?">
+                        <button type="submit" class="btn btn-outline-secondary w-100">Liberar mesa (aberta por engano)</button>
+                    </form>
+                }
+            }
+            else
+            {
+                <ul class="lista-itens">
+                    @foreach (var item in c.Itens.OrderBy(i => i.Id))
+                    {
+                        <li class="item-linha">
+                            <span class="item-qtd">@(item.Quantidade)x</span>
+                            <span class="item-nome">
+                                @item.Produto?.Nome
+                                @if (!string.IsNullOrEmpty(item.Observacao))
+                                {
+                                    <span class="item-obs">@item.Observacao</span>
+                                }
+                            </span>
+                            <span class="item-valor">@item.Subtotal.ToString("C")</span>
+                            @if (aberta)
+                            {
+                                <form asp-action="RemoverItem" asp-route-id="@c.Id" method="post" class="m-0"
+                                      data-confirmar="Remover @item.Quantidade x @item.Produto?.Nome?">
+                                    <input type="hidden" name="itemId" value="@item.Id" />
+                                    <button type="submit" class="btn btn-outline-danger btn-remover" aria-label="Remover @item.Produto?.Nome">Remover</button>
+                                </form>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+
+            <div class="total">
+                <span>Total</span>
+                <span class="total-valor">@c.Total.ToString("C")</span>
+            </div>
+
+            @if (aberta && c.Itens.Count > 0)
+            {
+                @if (aguardando)
+                {
+                    <a class="btn btn-primary btn-lg w-100 mt-3" asp-action="Fechar" asp-route-id="@c.Id">Ir para o pagamento</a>
+                }
+                else
+                {
+                    <form asp-action="PedirConta" asp-route-id="@c.Id" method="post" class="mt-3">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Fechar conta</button>
+                    </form>
+                }
+            }
+        </div>
+    </section>
+
+    @if (aberta)
+    {
+        <section class="col-lg-7 order-1 order-lg-2">
+            <div class="bloco">
+                <h2 class="subtitulo">Cardápio</h2>
+
+                @if (Model.Cardapio.Count == 0)
+                {
+                    <p class="text-secondary my-3">Nenhum produto disponível. Peça ao administrador para cadastrar o cardápio.</p>
+                }
+                else
+                {
+                    <form asp-action="AdicionarItem" asp-route-id="@c.Id" method="post">
+                        @* Enter nos campos não pode lançar o primeiro produto da lista: o botão padrão do formulário fica desativado *@
+                        <button type="submit" disabled hidden aria-hidden="true"></button>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-12 col-sm-5">
+                                <label for="quantidade" class="form-label">Quantidade</label>
+                                <div class="input-group contador">
+                                    <button type="button" class="btn btn-outline-secondary" data-passo="-1" aria-label="Diminuir quantidade">−</button>
+                                    <input id="quantidade" name="quantidade" type="number" min="1" max="99" value="1"
+                                           inputmode="numeric" class="form-control text-center" />
+                                    <button type="button" class="btn btn-outline-secondary" data-passo="1" aria-label="Aumentar quantidade">+</button>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-7">
+                                <label for="observacao" class="form-label">Observação (opcional)</label>
+                                <input id="observacao" name="observacao" maxlength="200" class="form-control" placeholder="Ex.: sem cebola" />
+                            </div>
+                        </div>
+
+                        <p class="text-secondary mt-3 mb-0">Toque no produto para lançar.</p>
+
+                        @foreach (var grupo in Model.Cardapio)
+                        {
+                            <h3 class="categoria">@grupo.Key</h3>
+                            <div class="grade-produtos">
+                                @foreach (var produto in grupo)
+                                {
+                                    <button type="submit" name="produtoId" value="@produto.Id" class="produto">
+                                        <span>@produto.Nome</span>
+                                        <span class="produto-preco">@produto.Preco.ToString("C")</span>
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </form>
+                }
+            </div>
+        </section>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('[data-passo]').forEach(function (botao) {
+            botao.addEventListener('click', function () {
+                var campo = document.getElementById('quantidade');
+                var valor = (parseInt(campo.value, 10) || 1) + parseInt(botao.dataset.passo, 10);
+                campo.value = Math.min(99, Math.max(1, valor));
+            });
+        });
+    </script>
+}
